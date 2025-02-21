@@ -1,0 +1,11 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <title>Gráfico de Faturamento</title>
+</head>
+<body>
+    <h1>Gráfico de Faturamento - {{ faturamento.ano }}</h1>
+    <img src="data:image/png;base64,{{ imagem_base64 }}" alt="Gráfico de Faturamento">
+    <a href="{% url 'listar_faturamento' %}">Voltar</a>
+</body>
+</html>
