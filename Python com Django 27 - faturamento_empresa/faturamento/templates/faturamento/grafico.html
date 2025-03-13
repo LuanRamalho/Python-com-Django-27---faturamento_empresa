@@ -2,10 +2,88 @@
 <html lang="pt">
 <head>
     <title>Gráfico de Faturamento</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin: 20px;
+        }
+        .grafico-container {
+            width: 900px;  /* Aumentei a largura */
+            height: 500px; /* Aumentei a altura */
+            margin: 20px auto;
+        }
+        a {
+            display: inline-block;
+            margin-top: 15px;
+            text-decoration: none;
+            background: #007bff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+        }
+        a:hover {
+            background: #0056b3;
+        }
+    </style>
 </head>
 <body>
     <h1>Gráfico de Faturamento - {{ faturamento.ano }}</h1>
-    <img src="data:image/png;base64,{{ imagem_base64 }}" alt="Gráfico de Faturamento">
+    
+    <div class="grafico-container">
+        <canvas id="graficoFaturamento"></canvas>
+    </div>
+
     <a href="{% url 'listar_faturamento' %}">Voltar</a>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            let dados = JSON.parse('{{ dados_grafico|escapejs }}');
+
+            let ctx = document.getElementById("graficoFaturamento").getContext("2d");
+            new Chart(ctx, {
+                type: "bar",
+                data: {
+                    labels: dados.meses,
+                    datasets: [{
+                        label: "Faturamento (R$)",
+                        data: dados.valores,
+                        backgroundColor: "rgba(54, 162, 235, 0.6)",
+                        borderColor: "rgba(54, 162, 235, 1)",
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false, // Permite alterar altura e largura livremente
+                    plugins: {
+                        tooltip: {
+                            callbacks: {
+                                label: function(tooltipItem) {
+                                    return `R$ ${tooltipItem.raw.toFixed(2)}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            title: {
+                                display: true,
+                                text: "Meses"
+                            }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: "Faturamento (R$)"
+                            }
+                        }
+                    }
+                }
+            });
+        });
+    </script>
 </body>
 </html>
