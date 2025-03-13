@@ -4,6 +4,7 @@ from .forms import FaturamentoForm
 import matplotlib.pyplot as plt
 import io
 import urllib, base64
+import json
 
 def listar_faturamento(request):
     faturamentos = Faturamento.objects.all()
@@ -39,9 +40,8 @@ def excluir_faturamento(request, id):
 
 def visualizar_grafico(request, id):
     faturamento = get_object_or_404(Faturamento, id=id)
-    meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
 
-    # Converter valores Decimal para float
+    meses = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez']
     valores = [
         float(faturamento.janeiro), float(faturamento.fevereiro), float(faturamento.marco),
         float(faturamento.abril), float(faturamento.maio), float(faturamento.junho),
@@ -49,23 +49,6 @@ def visualizar_grafico(request, id):
         float(faturamento.outubro), float(faturamento.novembro), float(faturamento.dezembro)
     ]
 
-    plt.figure(figsize=(10, 5))
-    barras = plt.bar(meses, valores, color='blue')
+    dados_grafico = json.dumps({'meses': meses, 'valores': valores})
 
-    # Exibir os valores no topo de cada barra
-    for barra, valor in zip(barras, valores):
-        plt.text(barra.get_x() + barra.get_width() / 2, valor + 0.5, f"R$ {valor:.2f}",
-                 ha='center', va='bottom', fontsize=10, color="black", fontweight="bold")
-
-    plt.xlabel("Meses")
-    plt.ylabel("Faturamento (R$)")
-    plt.title(f"Faturamento de {faturamento.ano}")
-    plt.ylim(0, max(valores) * 1.2)  # Ajusta a altura para não cortar os valores
-
-    buffer = io.BytesIO()
-    plt.savefig(buffer, format='png')
-    buffer.seek(0)
-    imagem_base64 = base64.b64encode(buffer.getvalue()).decode()
-    buffer.close()
-
-    return render(request, 'faturamento/grafico.html', {'imagem_base64': imagem_base64, 'faturamento': faturamento})
+    return render(request, 'faturamento/grafico.html', {'dados_grafico': dados_grafico, 'faturamento': faturamento})
